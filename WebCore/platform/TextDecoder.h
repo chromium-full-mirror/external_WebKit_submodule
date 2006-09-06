@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Alexey Proskuryakov <ap@nypop.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,33 +23,42 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
-#include "StreamingTextDecoder.h"
+#ifndef TextDecoder_h
+#define TextDecoder_h
 
 #include "PlatformString.h"
+#include "StreamingTextDecoder.h"
+#include "TextEncoding.h"
+#include <wtf/OwnPtr.h>
 
 namespace WebCore {
 
-const UChar BOM = 0xFEFF;
+    class TextCodec;
 
-TextCodec::~TextCodec()
-{
-}
+    class TextDecoder {
+    public:
+        TextDecoder(const TextEncoding&);
+        void reset(const TextEncoding&);
+        const TextEncoding& encoding() const { return m_encoding; };
 
-// We strip BOM characters because they can show up both at the start of content
-// and inside content, and we never want them to end up in the decoded text.
-void TextCodec::appendOmittingBOM(String& s, const UChar* characters, size_t length)
-{
-    size_t start = 0;
-    for (size_t i = 0; i != length; ++i) {
-        if (BOM == characters[i]) {
-            if (start != i)
-                s.append(String(&characters[start], i - start));
-            start = i + 1;
+        String decode(const char* data, size_t length, bool flush = false)
+        {
+            if (!m_checkedForBOM)
+                return checkForBOM(data, length, flush);
+            return m_codec->decode(data, length, flush);
         }
-    }
-    if (start != length)
-        s.append(String(&characters[start], length - start));
-}
+
+    private:
+        String checkForBOM(const char*, size_t length, bool flush);
+
+        TextEncoding m_encoding;
+        OwnPtr<TextCodec> m_codec;
+
+        bool m_checkedForBOM;
+        unsigned char m_numBufferedBytes;
+        unsigned char m_bufferedBytes[2];
+    };
 
 } // namespace WebCore
+
+#endif // TextDecoder_h

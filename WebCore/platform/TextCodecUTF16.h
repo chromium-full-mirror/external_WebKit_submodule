@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Alexey Proskuryakov <ap@nypop.com>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,33 +23,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
-#include "StreamingTextDecoder.h"
+#ifndef TextCodecUTF16_h
+#define TextCodecUTF16_h
 
-#include "PlatformString.h"
+#include "StreamingTextDecoder.h"
 
 namespace WebCore {
 
-const UChar BOM = 0xFEFF;
+    class TextCodecUTF16 : public TextCodec {
+    public:
+        static void registerEncodingNames(EncodingNameRegistrar);
+        static void registerCodecs(TextCodecRegistrar);
 
-TextCodec::~TextCodec()
-{
-}
+        TextCodecUTF16(bool littleEndian) : m_littleEndian(littleEndian), m_haveBufferedByte(false) { }
 
-// We strip BOM characters because they can show up both at the start of content
-// and inside content, and we never want them to end up in the decoded text.
-void TextCodec::appendOmittingBOM(String& s, const UChar* characters, size_t length)
-{
-    size_t start = 0;
-    for (size_t i = 0; i != length; ++i) {
-        if (BOM == characters[i]) {
-            if (start != i)
-                s.append(String(&characters[start], i - start));
-            start = i + 1;
-        }
-    }
-    if (start != length)
-        s.append(String(&characters[start], length - start));
-}
+        virtual String decode(const char*, size_t length, bool flush = false);
+        virtual CString encode(const UChar*, size_t length, bool allowEntities = false);
+
+    private:
+        bool m_littleEndian;
+        bool m_haveBufferedByte;
+        unsigned char m_bufferedByte;
+    };
 
 } // namespace WebCore
+
+#endif // TextCodecUTF16_h

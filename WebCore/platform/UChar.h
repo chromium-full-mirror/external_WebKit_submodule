@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2004, 2006 Apple Computer, Inc.  All rights reserved.
- * Copyright (C) 2006 Alexey Proskuryakov <ap@nypop.com>
+ * Copyright (C) 2006 Apple Computer, Inc.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -24,33 +23,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-#include "config.h"
-#include "StreamingTextDecoder.h"
+#ifndef UChar_h
+#define UChar_h
 
-#include "PlatformString.h"
+#include <unicode/umachine.h>
 
 namespace WebCore {
 
-const UChar BOM = 0xFEFF;
+    typedef ::UChar UChar;
 
-TextCodec::~TextCodec()
-{
 }
 
-// We strip BOM characters because they can show up both at the start of content
-// and inside content, and we never want them to end up in the decoded text.
-void TextCodec::appendOmittingBOM(String& s, const UChar* characters, size_t length)
-{
-    size_t start = 0;
-    for (size_t i = 0; i != length; ++i) {
-        if (BOM == characters[i]) {
-            if (start != i)
-                s.append(String(&characters[start], i - start));
-            start = i + 1;
-        }
-    }
-    if (start != length)
-        s.append(String(&characters[start], length - start));
-}
-
-} // namespace WebCore
+#endif // UChar_h
