@@ -1,7 +1,5 @@
 /*
- * The default style sheet used to render SVG.
- *
- * Copyright (C) 2005, 2006 Apple Computer, Inc.  All rights reserved.
+ * Copyright (C) 2007 Nikolas Zimmermann <zimmermann@kde.org>
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -25,35 +23,23 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */
 
-@namespace "http://www.w3.org/2000/svg";
+module svg {
 
-/*
-    When an outermost SVG 'svg' element is stand-alone or embedded inline within a parent XML grammar 
-    which does not use CSS layout [CSS2-LAYOUT] or XSL formatting [XSL], the 'overflow' property on the 
-    outermost 'svg' element is ignored for the purposes of visual rendering and the initial clipping path is set 
-    to the bounds of the initial viewport.
-*/
-svg:root {
-    overflow: hidden !important
-}
+    interface [Conditional=SVG] SVGTextPathElement : SVGTextContentElement,
+                                                     SVGURIReference {    
+        // textPath Method Types
+        const unsigned short TEXTPATH_METHODTYPE_UNKNOWN   = 0;
+        const unsigned short TEXTPATH_METHODTYPE_ALIGN     = 1;
+        const unsigned short TEXTPATH_METHODTYPE_STRETCH   = 2;
 
-svg {
-    width: 100%;
-    height: 100%;
-}
+        // textPath Spacing Types
+        const unsigned short TEXTPATH_SPACINGTYPE_UNKNOWN  = 0;
+        const unsigned short TEXTPATH_SPACINGTYPE_AUTO     = 1;
+        const unsigned short TEXTPATH_SPACINGTYPE_EXACT    = 2;
 
-svg, symbol, marker, pattern {
-    overflow: hidden
-}
+        readonly attribute SVGAnimatedLength startOffset;
+        readonly attribute SVGAnimatedEnumeration method;
+        readonly attribute SVGAnimatedEnumeration spacing;
+    };
 
-text, foreignObject {
-    display: block !important
-}
-
-text, tspan, textPath {
-   white-space: nowrap
-}
-
-text, tspan, tref {
-   -webkit-text-size-adjust: none;
 }
