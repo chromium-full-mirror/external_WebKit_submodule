@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007, 2008 Apple Inc. All rights reserved.
+ * Copyright (C) 2009 Apple Inc. All Rights Reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -10,7 +10,7 @@
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY APPLE COMPUTER, INC. ``AS IS'' AND ANY
+ * THIS SOFTWARE IS PROVIDED BY APPLE, INC. ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
  * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL APPLE COMPUTER, INC. OR
@@ -21,29 +21,37 @@
  * OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ *
  */
 
-module window {
+#ifndef PopStateEvent_h
+#define PopStateEvent_h
 
-    interface [
-#if defined(V8_BINDING) && V8_BINDING
-        CheckDomainSecurity,
-#endif
-        DelegatingGetOwnPropertySlot,
-        DelegatingPutFunction,
-        CustomDeleteProperty,
-        CustomGetPropertyNames
-    ] History {
-        readonly attribute unsigned long length;
+#include "Event.h"
+#include "SerializedScriptValue.h"
 
-        [DoNotCheckDomainSecurity] void back();
-        [DoNotCheckDomainSecurity] void forward();
-        [DoNotCheckDomainSecurity] void go(in long distance);
-        
-        [Custom] void pushState(in any data, in DOMString title, in optional DOMString url)
-            raises(DOMException);
-        [Custom] void replaceState(in any data, in DOMString title, in optional DOMString url)
-            raises(DOMException);
-    };
+namespace WebCore {
 
-}
+class SerializedScriptValue;
+
+class PopStateEvent : public Event {
+public:
+    static PassRefPtr<PopStateEvent> create(PassRefPtr<SerializedScriptValue> stateObject)
+    {
+        return adoptRef(new PopStateEvent(stateObject));
+    }
+
+    void initPopStateEvent(const AtomicString& type, bool canBubble, bool cancelable, PassRefPtr<SerializedScriptValue>);
+    bool isPopStateEvent() const { return true; }
+
+    SerializedScriptValue* state() const { return m_stateObject.get(); }    
+
+private:
+    PopStateEvent(PassRefPtr<SerializedScriptValue>);
+
+    RefPtr<SerializedScriptValue> m_stateObject;
+};
+
+} // namespace WebCore
+
+#endif // PopStateEvent_h
